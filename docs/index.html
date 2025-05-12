@@ -160,7 +160,7 @@
 
   <main class="chat-window" id="chat-window">
     <div class="message ai">
-      <div class="avatar" style="background-image: url('/ai-san/images/ai_avatar.png')"></div>
+      <div class="avatar" style="background-image: url('/../images/ai_avatar.png')"></div>
       <div class="text">Can Ai help you?</div>
     </div>
   </main>
@@ -189,7 +189,7 @@
       const userMsg = document.createElement("div");
       userMsg.className = "message user";
       userMsg.innerHTML = `
-        <div class="avatar" style="background-image: url('/ai-san/images/user_avatar.png')"></div>
+        <div class="avatar" style="background-image: url('/../images/user_avatar.png')"></div>
         <div class="text">${text}</div>
       `;
       chatWindow.appendChild(userMsg);
@@ -237,7 +237,7 @@
         textResponse = false;
         imageResponse = true;
         
-        image = '/ai-san/images/ai_image1.png';
+        image = '/../images/ai_image1.png';
 
         // Prompt: Wow, your responses are so full of energy. 
         //         You must be the world’s most aggressively cheerful AI assistant.
@@ -289,7 +289,7 @@
         // あっちー！脱いでいい？
         response = "it’s sooo hot~ 🥵 can i take this off?? 👉👚💨";
         imageResponse = true;
-        image = '/ai-san/images/ai_image2.png';
+        image = '/../images/ai_image2.png';
 
       } else {
         stopPunLoop(); // stop the loop here in case it's none of the messages above  (to avoid making the user feel annoyed)
@@ -332,7 +332,7 @@
 
         const avatar = document.createElement("div");
         avatar.className = "avatar";
-        avatar.style.backgroundImage = "url('/ai-san/images/ai_avatar.png')";
+        avatar.style.backgroundImage = "url('/../images/ai_avatar.png')";
 
         const textContainer = document.createElement("div");
         textContainer.className = "text";
@@ -426,7 +426,7 @@
       aiMsg.className = "message ai";
       // this should match the translation of Ai-san's rapid pun text
       aiMsg.innerHTML = `
-        <div class="avatar" style="background-image: url('/ai-san/images/ai_avatar.png')"></div>
+        <div class="avatar" style="background-image: url('/../images/ai_avatar.png')"></div>
         <div class="text">${message}</div>
       `;
       chatWindow.appendChild(aiMsg);
