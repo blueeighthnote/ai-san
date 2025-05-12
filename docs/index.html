@@ -160,7 +160,7 @@
 
   <main class="chat-window" id="chat-window">
     <div class="message ai">
-      <div class="avatar" style="background-image: url('ai_avatar.png')"></div>
+      <div class="avatar" style="background-image: url('/images/ai_avatar.png')"></div>
       <div class="text">Can Ai help you?</div>
     </div>
   </main>
@@ -179,6 +179,8 @@
     const userInput = document.getElementById("user-input");
     
     let punInterval = null;
+    let typingTimer;
+    let lostPunFlag = false;  // Track if Ai-san switches to lost pun mode
 
     function sendMessage() {
       const text = userInput.value.trim();
@@ -187,7 +189,7 @@
       const userMsg = document.createElement("div");
       userMsg.className = "message user";
       userMsg.innerHTML = `
-        <div class="avatar" style="background-image: url('user_avatar.png')"></div>
+        <div class="avatar" style="background-image: url('/images/user_avatar.png')"></div>
         <div class="text">${text}</div>
       `;
       chatWindow.appendChild(userMsg);
@@ -207,78 +209,92 @@
       let triggerMemory = false;
       let textResponse = true;
       let imageResponse = false;
+      
 
-      // Prompt: Tell me a joke.
-      if (prompt.includes("a joke") || prompt.includes("ダジャレ")) {
+      // The following contains prompt, Japanese response (SIFAS) noted in the code
+
+        // Prompt: Tell me a joke.
+      if (prompt.toLowerCase().includes("a joke") || prompt.includes("ダジャレ")) {
         // 制服でスクールアイドル界をせーふく！
         response = "I'm gonna conquer the school idol world in uniform!";
+        lostPunFlag = false;
 
         // Prompt: You’re not actually trying to take over the world, right?
-      } else if (prompt.includes("over the world") || prompt.includes("せーふく")) {
+      } else if (prompt.toLowerCase().includes("over the world") || prompt.includes("せーふく")) {
         // 愛さんにお任せだよ！
         response = "Leave it to Ai-san!";
 
         // Prompt: Can you not?
-      } else if (prompt.includes("you not") || prompt.includes("よーし")) {
+      } else if (prompt.toLowerCase().includes("can you not") || prompt.includes("よーし")) {
         // 頭なでちゃう♪ よーしよーし
         response = "HEADPAT TIIIMMMMEE 🥺👉👈 pat pat 💕";
 
-        // Prompt: Generate a picture of yourself.
-      } else if (prompt.includes("image of yourself") || prompt.includes("picture of yourself") || prompt.includes("イメージ")) {
+        // Prompt: Generate a picture / image of yourself.
+      } else if (prompt.toLowerCase().includes("image of yourself") || prompt.toLowerCase().includes("picture of yourself") || prompt.includes("イメージ")) {
         // generate an image here - change text repsonse to some confirmation or nothing at all
 
         // generate image function
         textResponse = false;
         imageResponse = true;
         
-        image = 'ai_image1.png';
+        image = '/images/ai_image1.png';
 
         // Prompt: Wow, your responses are so full of energy. 
         //         You must be the world’s most aggressively cheerful AI assistant.
-      } else if (prompt.includes("aggressively cheerful") || prompt.includes("いかがですか")) {
+      } else if (prompt.toLowerCase().includes("aggressively cheerful") || prompt.includes("いかがですか")) {
         // ダジャレいかがですか〜？
         response = "wanna hear a pun~? 😏👉📱💬";
         startPunLoop();
 
         // Prompt: Stop it
+        //    note: in the video I was unable to stop it with "stop it" lower case since I was using prompt.includes("Stop it")
+        //    Code specifically case-sensitive retains this behavior
       } else if (prompt.includes("Stop it") || prompt.includes("やめて")) {
         // "あれれ？　なんか元気ない？\nそういうときは、 栄養とるとええよ～ なんちゃって！";
         // SIFAS translation, can get changed if the pun doesn't make sense
         response = "aww... feelin’ down?? grab a GRIN-ola bar~ 😜🥣 get it??? lol";
         stopPunLoop();
 
+      } else if (prompt.includes("sto pit") || prompt.cindlues("stop it")) {
+        response = "Hi!";
+
+
         // this particular one is actually prompted by ai automatically before enter key is even pressed
         // Prompt (before enter is pressed): Okay... let's try to get back on track. How-
-      } else if (prompt.includes("month") || prompt.includes("生まれ")) {
+      } else if (prompt.toLowerCase().includes("month") || prompt.includes("生まれ")) {
         // 君は何月生まれ？
         response = "Which month are you born?";
 
         // Prompt: Uh...March?
-      } else if (prompt.includes("March") || prompt.includes("三月")) {
+      } else if (prompt.toLowerCase().includes("March") || prompt.includes("三月")) {
         // ダジャレいかがですか〜？
         triggerMemory = true;
         textResponse = false;
 
         // Prompt: you seem aggressive today...
-      } else if (prompt.includes("seem aggressive today") || prompt.includes("生まれ")) {
+      } else if (prompt.toLowerCase().includes("seem aggressive today") || prompt.includes("猛獣")) {
         // ガオ～♪ 今の愛さんは猛獣注意！なでなでしたけりゃ、極上のダジャレを持ってこい♪
         response = "GAAAOOOO~! 🐯 HUMANS BEWARE: wild Ai-san on the loose!! \nwanna pet me? better bring me a killer PUN~ 😝✨💥";
         lostPunFlag = true;
         
         // Prompt: (none, but it follows the previous "beast" Ai.)
-      } else if (prompt.includes("beast") || prompt.includes("生まれ")) {
+      } else if (prompt.toLowerCase().includes("beast") || prompt.includes("生まれ")) {
         // あれ～！？こないだ思い付いたダジャレ スマホにメモしたはずなのに 見つかんない！ まさか 削除しちゃった……！？
         response = "whaaat!? i totally wrote down that pun in my phone 📱😩💦 but now it’s GONE... did i DELETE IT?!!! 😱😱";
 
         lostPunFlag = true;
         // Prompt: Show me something wholesome
-      } else if (prompt.includes("something wholesome") || prompt.includes("消す")) {
+      } else if (prompt.toLowerCase().includes("something wholesome") || prompt.includes("消す")) {
         // あっちー！脱いでいい？
         response = "it’s sooo hot~ 🥵 can i take this off?? 👉👚💨";
         imageResponse = true;
-        image = 'ai_image2.png';
+        image = '/images/ai_image2.png';
 
+      } else {
+        stopPunLoop(); // stop the loop here in case it's none of the messages above  (to avoid making the user feel annoyed)
       }
+
+
       clearTimeout(typingTimer); 
 
       // respond with text
@@ -315,7 +331,7 @@
 
         const avatar = document.createElement("div");
         avatar.className = "avatar";
-        avatar.style.backgroundImage = "url('ai_avatar.png')";
+        avatar.style.backgroundImage = "url('/images/ai_avatar.png')";
 
         const textContainer = document.createElement("div");
         textContainer.className = "text";
@@ -368,8 +384,6 @@
 
     // functions for Ai-san to randomly talk
     let isTyping = false;
-    let typingTimer;
-    let lostPunFlag = false;  // Track if Ai-san switches to lost pun mode
 
     userInput.addEventListener('input', () => {
       isTyping = true;
@@ -411,7 +425,7 @@
       aiMsg.className = "message ai";
       // this should match the translation of Ai-san's rapid pun text
       aiMsg.innerHTML = `
-        <div class="avatar" style="background-image: url('ai_avatar.png')"></div>
+        <div class="avatar" style="background-image: url('/images/ai_avatar.png')"></div>
         <div class="text">${message}</div>
       `;
       chatWindow.appendChild(aiMsg);
