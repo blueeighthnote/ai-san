@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GomenGPT - Talk with Ai-san</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background-color: #1e1e1e;
+      color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      background-color: #2d2d2d;
+      padding: 1rem;
+      text-align: center;
+      border-bottom: 1px solid #444;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    .chat-window {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .message {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .message.ai {
+      flex-direction: row;
+    }
+
+    .message.ai.image-reply .text {
+      max-width: 280px; /* or whatever you like */
+      padding: 6px 10px;
+    }
+
+    .message.ai.image-reply img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .message.user {
+      flex-direction: row-reverse;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #555;
+      background-size: cover;
+      flex-shrink: 0;
+    }
+
+    .text {
+      background-color: #2a2a2a;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      max-width: 60%;
+    }
+
+    .input-area {
+      display: flex;
+      padding: 1rem;
+      background-color: #2d2d2d;
+      border-top: 1px solid #444;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 0.75rem;
+      background-color: #1e1e1e;
+      color: white;
+      border: 1px solid #555;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    button {
+      margin-left: 0.5rem;
+      padding: 0.75rem 1.2rem;
+      background-color: #ea4ccc;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #888;
+      padding: 0.5rem;
+    }
+
+    .memory-overlay {
+      text-align: left;
+      font-size: 0.85em;
+      color: #888;
+      opacity: 1;
+      margin: 8px 0 8px 12px; /* left offset for alignment */
+      transition: opacity 1s ease-out;
+    }
+
+    .memory-overlay.fade-out {
+      opacity: 0;
+    }
+
+    .ai-image-loading {
+      font-size: 0.85em;
+      color: #888;
+      margin: 8px 0 8px 12px;
+      opacity: 1;
+      transition: opacity 0.5s ease-out;
+    }
+
+    .fade-in-scale {
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .fade-in-scale.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>GomenGPT - Talk with Ai-san</h1>
+    <p>BETA | Warning: May contain puns and hugs</p>
+  </header>
+
+  <main class="chat-window" id="chat-window">
+    <div class="message ai">
+      <div class="avatar" style="background-image: url('ai_avatar.png')"></div>
+      <div class="text">Can Ai help you?</div>
+    </div>
+  </main>
+
+  <div class="input-area">
+    <input type="text" id="user-input" placeholder="Ask Ai-san something..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <footer>
+    愛さんのダジャレで笑いすぎても責任は取れません。
+  </footer>
+
+  <script>
+    const chatWindow = document.getElementById("chat-window");
+    const userInput = document.getElementById("user-input");
+    
+    let punInterval = null;
+
+    function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      const userMsg = document.createElement("div");
+      userMsg.className = "message user";
+      userMsg.innerHTML = `
+        <div class="avatar" style="background-image: url('user_avatar.png')"></div>
+        <div class="text">${text}</div>
+      `;
+      chatWindow.appendChild(userMsg);
+      userInput.value = "";
+
+      // Scroll to bottom
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+
+      // Simulate AI response
+      setTimeout(() => addAiResponse(text), 600);
+    }
+
+    function addAiResponse(prompt) {
+      let response = "AI know right???!!";
+      let image;
+
+      let triggerMemory = false;
+      let textResponse = true;
+      let imageResponse = false;
+
+      // Prompt: Tell me a joke.
+      if (prompt.includes("a joke") || prompt.includes("ダジャレ")) {
+        // 制服でスクールアイドル界をせーふく！
+        response = "I'm gonna conquer the school idol world in uniform!";
+
+        // Prompt: You’re not actually trying to take over the world, right?
+      } else if (prompt.includes("over the world") || prompt.includes("せーふく")) {
+        // 愛さんにお任せだよ！
+        response = "Leave it to Ai-san!";
+
+        // Prompt: Can you not?
+      } else if (prompt.includes("you not") || prompt.includes("よーし")) {
+        // 頭なでちゃう♪ よーしよーし
+        response = "HEADPAT TIIIMMMMEE 🥺👉👈 pat pat 💕";
+
+        // Prompt: Generate a picture of yourself.
+      } else if (prompt.includes("image of yourself") || prompt.includes("picture of yourself") || prompt.includes("イメージ")) {
+        // generate an image here - change text repsonse to some confirmation or nothing at all
+
+        // generate image function
+        textResponse = false;
+        imageResponse = true;
+        
+        image = 'ai_image1.png';
+
+        // Prompt: Wow, your responses are so full of energy. 
+        //         You must be the world’s most aggressively cheerful AI assistant.
+      } else if (prompt.includes("aggressively cheerful") || prompt.includes("いかがですか")) {
+        // ダジャレいかがですか〜？
+        response = "wanna hear a pun~? 😏👉📱💬";
+        startPunLoop();
+
+        // Prompt: Stop it
+      } else if (prompt.includes("Stop it") || prompt.includes("やめて")) {
+        // "あれれ？　なんか元気ない？\nそういうときは、 栄養とるとええよ～ なんちゃって！";
+        // SIFAS translation, can get changed if the pun doesn't make sense
+        response = "aww... feelin’ down?? grab a GRIN-ola bar~ 😜🥣 get it??? lol";
+        stopPunLoop();
+
+        // this particular one is actually prompted by ai automatically before enter key is even pressed
+        // Prompt (before enter is pressed): Okay... let's try to get back on track. How-
+      } else if (prompt.includes("month") || prompt.includes("生まれ")) {
+        // 君は何月生まれ？
+        response = "Which month are you born?";
+
+        // Prompt: Uh...March?
+      } else if (prompt.includes("March") || prompt.includes("三月")) {
+        // ダジャレいかがですか〜？
+        triggerMemory = true;
+        textResponse = false;
+
+        // Prompt: you seem aggressive today...
+      } else if (prompt.includes("seem aggressive today") || prompt.includes("生まれ")) {
+        // ガオ～♪ 今の愛さんは猛獣注意！なでなでしたけりゃ、極上のダジャレを持ってこい♪
+        response = "GAAAOOOO~! 🐯 HUMANS BEWARE: wild Ai-san on the loose!! \nwanna pet me? better bring me a killer PUN~ 😝✨💥";
+        lostPunFlag = true;
+        
+        // Prompt: (none, but it follows the previous "beast" Ai.)
+      } else if (prompt.includes("beast") || prompt.includes("生まれ")) {
+        // あれ～！？こないだ思い付いたダジャレ スマホにメモしたはずなのに 見つかんない！ まさか 削除しちゃった……！？
+        response = "whaaat!? i totally wrote down that pun in my phone 📱😩💦 but now it’s GONE... did i DELETE IT?!!! 😱😱";
+
+        lostPunFlag = true;
+        // Prompt: Show me something wholesome
+      } else if (prompt.includes("something wholesome") || prompt.includes("消す")) {
+        // あっちー！脱いでいい？
+        response = "it’s sooo hot~ 🥵 can i take this off?? 👉👚💨";
+        imageResponse = true;
+        image = 'ai_image2.png';
+
+      }
+      clearTimeout(typingTimer); 
+
+      // respond with text
+      if (textResponse){
+        insertAiMessage(response);
+      }
+      // respond with an image
+      if (imageResponse){
+        insertAiImage(image);
+      }
+      // Memory update
+      if (triggerMemory){
+        showMemoryUpdatedOverlay();
+      }
+      
+    }
+
+    function insertAiImage(imageUrl, optionalCaption = "") {
+      const chatWindow = document.querySelector(".chat-window");
+
+      // Step 1: Add loading message
+      const loadingMsg = document.createElement("div");
+      loadingMsg.className = "ai-image-loading";
+      loadingMsg.innerText = "Image generation in progress…";
+      chatWindow.appendChild(loadingMsg);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+
+      // Step 2: Replace loading with image after delay
+      setTimeout(() => {
+        loadingMsg.remove();
+
+        const aiMsg = document.createElement("div");
+        aiMsg.className = "message ai image-reply";
+
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.style.backgroundImage = "url('ai_avatar.png')";
+
+        const textContainer = document.createElement("div");
+        textContainer.className = "text";
+
+        const img = document.createElement("img");
+        img.src = imageUrl;
+        img.alt = "Ai-san's reply image";
+        img.className = "fade-in-scale";
+        img.style.maxWidth = "100%";
+        img.style.borderRadius = "8px";
+
+        if (optionalCaption) {
+          const caption = document.createElement("div");
+          caption.innerText = optionalCaption;
+          caption.style.marginTop = "6px";
+          caption.style.fontSize = "0.85em";
+          caption.style.color = "#555";
+          textContainer.appendChild(img);
+          textContainer.appendChild(caption);
+        } else {
+          textContainer.appendChild(img);
+        }
+
+        aiMsg.appendChild(avatar);
+        aiMsg.appendChild(textContainer);
+        chatWindow.appendChild(aiMsg);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+
+        // Trigger animation
+        setTimeout(() => {
+          img.classList.add("show");
+          chatWindow.scrollTop = chatWindow.scrollHeight;
+        }, 50); // slight delay for transition to kick in
+
+      }, 1500); // adjust delay for "generation" time
+    }
+
+
+    function startPunLoop() {
+      if (punInterval) return; // prevent multiple loops
+      punInterval = setInterval(() => {
+        insertAiMessage("wanna hear a pun~? 😏👉📱💬");
+      }, 3000);
+    }
+
+    function stopPunLoop() {
+      clearInterval(punInterval);
+      punInterval = null;
+    }
+
+    // functions for Ai-san to randomly talk
+    let isTyping = false;
+    let typingTimer;
+    let lostPunFlag = false;  // Track if Ai-san switches to lost pun mode
+
+    userInput.addEventListener('input', () => {
+      isTyping = true;
+      clearTimeout(typingTimer);
+      typingTimer = setTimeout(() => {
+        isTyping = false;
+        aiSelfTalk();  // Ai-san says something if user stops typing
+      }, 3000);  // e.g., after 3 seconds of pause
+    });
+
+    function aiSelfTalk() {
+      const userText = userInput.value.toLowerCase().trim();
+
+      // Special case 1: prompt contains "okay... let's try to get back on track. how-"
+      if (userText.includes("get back on track.")) {
+        insertAiMessage("Which month are you born?");
+        return;
+      }
+
+      // Special case 2: lostPunFlag is active (after 猛獣注意 line)
+      if (lostPunFlag) {
+        insertAiMessage("Huh!? I *swear* I wrote down that pun on my phone, but now it’s gone... Did I delete it by accident!? 😱");
+        return;
+      }
+
+      // Default randomized responses
+      const messages = [
+        "Can Ai help you? 💭", // 愛さんに 手伝ってもらいたい？ 
+        "hi there", // ちーっす！
+        "Whatcha typing!? Is it a secret? 😳", // 何々！？内緒話？
+      ];
+
+      const message = messages[Math.floor(Math.random() * messages.length)];
+      insertAiMessage(message);
+    }
+
+    function insertAiMessage(message) {
+      const aiMsg = document.createElement("div");
+      aiMsg.className = "message ai";
+      // this should match the translation of Ai-san's rapid pun text
+      aiMsg.innerHTML = `
+        <div class="avatar" style="background-image: url('ai_avatar.png')"></div>
+        <div class="text">${message}</div>
+      `;
+      chatWindow.appendChild(aiMsg);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+
+    }
+
+    function showMemoryUpdatedOverlay() {
+      // Create the overlay element
+      const memoryOverlay = document.createElement('div');
+      memoryOverlay.className = 'memory-overlay';
+      memoryOverlay.innerText = 'Memory updated';
+
+      // Append it to the chat area or wherever your messages go
+      const chatWindow = document.querySelector('.chat-window'); // adjust if needed
+      chatWindow.appendChild(memoryOverlay);
+
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+
+      // Fade out after 2 seconds
+      setTimeout(() => {
+        memoryOverlay.classList.add('fade-out');
+        setTimeout(() => chatWindow.removeChild(memoryOverlay), 1000); // remove from DOM
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
