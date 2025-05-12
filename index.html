@@ -267,13 +267,13 @@
         response = "Which month are you born?";
 
         // Prompt: Uh...March?
-      } else if (prompt.toLowerCase().includes("March") || prompt.includes("三月")) {
+      } else if (prompt.toLowerCase().includes("march") || prompt.includes("三月")) {
         // ダジャレいかがですか〜？
         triggerMemory = true;
         textResponse = false;
 
         // Prompt: you seem aggressive today...
-      } else if (prompt.toLowerCase().includes("seem aggressive today") || prompt.includes("猛獣")) {
+      } else if (prompt.toLowerCase().includes("seem aggressive") || prompt.includes("猛獣")) {
         // ガオ～♪ 今の愛さんは猛獣注意！なでなでしたけりゃ、極上のダジャレを持ってこい♪
         response = "GAAAOOOO~! 🐯 HUMANS BEWARE: wild Ai-san on the loose!! \nwanna pet me? better bring me a killer PUN~ 😝✨💥";
         lostPunFlag = true;
@@ -399,7 +399,7 @@
       const userText = userInput.value.toLowerCase().trim();
 
       // Special case 1: prompt contains "okay... let's try to get back on track. how-"
-      if (userText.includes("get back on track.")) {
+      if (userText.includes("get back on track")) {
         insertAiMessage("Which month are you born?");
         return;
       }
