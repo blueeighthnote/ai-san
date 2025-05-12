@@ -4,6 +4,8 @@ Made for the sole purpose of simulating a chatbot environment where I can type m
 
 Youtube video: https://www.youtube.com/watch?v=yZ6XgoIuckI
 
+Website: https://blueeighthnote.github.io/ai-san/
+
 Current version: v0.1.1, May 12.
 
 
